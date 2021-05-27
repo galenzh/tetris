@@ -1,0 +1,38 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+.content {
+  width: 750px;
+  margin: 0 auto;
+  height: 100vh;
+  background-color: azure;
+}
+.screen {
+  width: 245px;
+  height: 495px;
+  display: grid;
+  grid-template-columns: auto auto auto auto auto auto auto auto auto auto;
+  justify-content: space-between;
+  align-content: space-between;
+  float: left;
+}
+.preview {
+  width: 95px;
+  height: 95px;
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  justify-content: space-between;
+  align-content: space-between;
+  float: left;
+  margin-left: 20px;
+}
+.square {
+  width: 20px;
+  height: 20px;
+  background-color: whitesmoke;
+}
+.square.active {
+  background-color: aqua;
+}
