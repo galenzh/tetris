@@ -31,9 +31,11 @@ class Element {
     this.prePosition = {x: 0, y: 0};
     this.preMatrix = [];
     this.squares = squares;
+    this.tipOffset = 0; // 提示在垂直轴上的偏移量
     this.matrix.forEach((ele) => {
       this.preMatrix.push(ele.slice());
-    })
+    });
+    this.calculateTipOffset();
   }
   rotate() {
     this.backup();
@@ -41,6 +43,7 @@ class Element {
     if(this.checkCollision(this.squares)) {
       this.restore();
     }
+    this.calculateTipOffset();
   }
   moveLeft() {
     this.backup();
@@ -48,6 +51,7 @@ class Element {
     if(this.checkCollision(this.squares)) {
       this.restore();
     }
+    this.calculateTipOffset();
   }
   moveRight() {
     this.backup();
@@ -55,6 +59,7 @@ class Element {
     if(this.checkCollision(this.squares)) {
       this.restore();
     }
+    this.calculateTipOffset();
   }
   moveDown() {
     this.backup();
@@ -87,6 +92,14 @@ class Element {
         this.preMatrix[i][j] = this.matrix[i][j];
       }
     }
+  }
+  calculateTipOffset() {
+    this.backup();
+    while(!this.checkCollision()) {
+      this.position.x += 1;
+    }
+    this.tipOffset = this.position.x - 1 >=0 ? this.position.x - 1 : 0;
+    this.restore();
   }
   checkCollision() {
     for(let i=0; i<this.matrix.length; i++) {
@@ -176,16 +189,23 @@ class Preview {
     return this.current;
   }
 }
+class Score {
+  constructor() {
+    this.score = 0;
+    this.dom = document.getElementById('score');
+    this.update();
+  }
+  update() {
+    this.dom.innerHTML = this.score;
+  }
+  add(score) {
+    this.score += score;
+    this.update();
+  }
+}
 class Tetris {
   constructor() {
-    this.squares = new Array(ROW).fill(0).map(()=>Array(COL).fill(0));
-    //this.squares[5][2] = 1;
-    this.doms = document.getElementById('screen').childNodes;
-    this.preview = new Preview(this.squares);
-    this.ele = this.preview.nextElement();
-    this.counter = 0;
-    this.status = 1; // 0:暂停; 1:运行中
-    this.speed = 50;
+    this.restart();
   }
   update() {
     if(this.status === 0) {
@@ -196,6 +216,7 @@ class Tetris {
       let x = this.ele.position.x;
       this.ele.moveDown();
       if(this.ele.position.x === x) {
+        // 到达底部，不能下移，将元素复制到背景方格中
         for(let i=0; i<this.ele.matrix.length; i++) {
           for(let j=0; j<this.ele.matrix.length; j++) {
             if(this.ele.matrix[i][j] > 0) {
@@ -203,6 +224,7 @@ class Tetris {
             }
           }
         }
+        // 判断是否有可消除行
         for(let i=0; i<ROW; i++) {
           let j = 0;
           for(j=0; j<COL; j++) {
@@ -213,11 +235,20 @@ class Tetris {
           if(j === COL) {
             this.squares.splice(i, 1);
             this.squares.unshift(Array(COL).fill(0));
+            this.score.add(1);
             i--;
+          }
+        }
+        //判断是否到顶
+        for(let i=0; i<this.squares[0].length; i++) {
+          if(this.squares[0][i] > 0) {
+            this.status = 0;
+            alert('Game over! Your score is ' + this.score.score);
           }
         }
         this.ele = this.preview.nextElement();
       }
+      this.ele.calculateTipOffset();
     }
     for(let i=0; i<this.squares.length; i++) {
       for(let j=0; j<this.squares[i].length; j++) {
@@ -228,6 +259,15 @@ class Tetris {
         }
       }
     }
+    // draw tip shape
+    for(let i=0; i<this.ele.matrix.length; i++) {
+      for(let j=0; j<this.ele.matrix[i].length; j++) {
+        if(this.ele.matrix[i][j] > 0) {
+          this.doms[(this.ele.tipOffset + i) * COL + this.ele.position.y + j].className = 'square tip';
+        }
+      }
+    }
+    // draw shape
     for(let i=0; i<this.ele.matrix.length; i++) {
       for(let j=0; j<this.ele.matrix[i].length; j++) {
         if(this.ele.position.x + i < 0 || this.ele.position.x + i >= ROW || this.ele.position.y + j < 0 || this.ele.position.y + j >= COL) {
@@ -247,6 +287,16 @@ class Tetris {
     }
     requestAnimationFrame(loop);
   }
+  restart() {
+    this.squares = new Array(ROW).fill(0).map(()=>Array(COL).fill(0));
+    this.doms = document.getElementById('screen').childNodes;
+    this.preview = new Preview(this.squares);
+    this.ele = this.preview.nextElement();
+    this.counter = 0;
+    this.status = 1; // 0:暂停; 1:运行中
+    this.speed = 50;
+    this.score = new Score();
+  }
 }
 
 let tetris = new Tetris();
@@ -262,4 +312,7 @@ window.addEventListener('keydown', function(event) {
   } else if(event.key === 'w') {
     tetris.ele.rotate();
   }
+});
+document.getElementById('restart').addEventListener('click', function() {
+  tetris.restart();
 });
