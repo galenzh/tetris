@@ -40,10 +40,27 @@ class Element {
   rotate() {
     this.backup();
     this.matrix = this.matrix.map((val, index) => this.matrix.map(row => row[index]).reverse());
-    if(this.checkCollision(this.squares)) {
-      this.restore();
+    if(!this.checkCollision(this.squares)) {
+      this.calculateTipOffset();
+      return;
     }
-    this.calculateTipOffset();
+    let pY = this.position.y;
+    for(let i=0; i<3; i++) {
+      this.position.y +=1;
+      if(!this.checkCollision(this.squares)) {
+        this.calculateTipOffset();
+        return;
+      }
+    }
+    this.position.y = pY;
+    for(let i=0; i<3; i++) {
+      this.position.y -=1;
+      if(!this.checkCollision(this.squares)) {
+        this.calculateTipOffset();
+        return;
+      }
+    }
+    this.restore();
   }
   moveLeft() {
     this.backup();
@@ -66,7 +83,9 @@ class Element {
     this.position.x += 1;
     if(this.checkCollision(this.squares)) {
       this.restore();
+      return false;
     }
+    return true;
   }
   moveUp() {
     this.backup();
@@ -100,6 +119,9 @@ class Element {
     }
     this.tipOffset = this.position.x - 1 >=0 ? this.position.x - 1 : 0;
     this.restore();
+  }
+  quickDown() {
+    while(this.moveDown());
   }
   checkCollision() {
     for(let i=0; i<this.matrix.length; i++) {
@@ -311,6 +333,8 @@ window.addEventListener('keydown', function(event) {
     tetris.ele.moveDown();
   } else if(event.key === 'w') {
     tetris.ele.rotate();
+  } else if(event.key === 'q') {
+    tetris.ele.quickDown();
   }
 });
 document.getElementById('restart').addEventListener('click', function() {
