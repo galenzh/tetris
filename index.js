@@ -230,7 +230,7 @@ class Tetris {
     this.restart();
   }
   update() {
-    if(this.status === 0) {
+    if(this.status === 0 || this.status === 2) {
       return;
     }
     this.counter++;
@@ -246,7 +246,9 @@ class Tetris {
             }
           }
         }
+        this.ele = this.preview.nextElement();
         // 判断是否有可消除行
+        let deletedRows = [];
         for(let i=0; i<ROW; i++) {
           let j = 0;
           for(j=0; j<COL; j++) {
@@ -255,11 +257,30 @@ class Tetris {
             }
           }
           if(j === COL) {
-            this.squares.splice(i, 1);
-            this.squares.unshift(Array(COL).fill(0));
-            this.score.add(1);
-            i--;
+            deletedRows.push(i);
           }
+        }
+        if(deletedRows.length > 0) {
+          this.status = 2;
+          for(let i=0; i<deletedRows.length; i++) {
+            for(let j=0; j<COL; j++) {
+              this.doms[deletedRows[i] * COL + j].classList.add('blink');
+            }
+          }
+          setTimeout(() => {
+            for(let i=0; i<deletedRows.length; i++) {
+              for(let j=0; j<COL; j++) {
+                this.doms[deletedRows[i] * COL + j].classList.remove('blink');
+              }
+            }
+            for(let i=0; i<deletedRows.length; i++) {
+              this.squares.splice(deletedRows[i], 1);
+              this.squares.unshift(Array(COL).fill(0));
+              this.score.add(1);
+            }
+            this.status = 1;
+          }, 1000);
+          return;
         }
         //判断是否到顶
         for(let i=0; i<this.squares[0].length; i++) {
@@ -268,10 +289,10 @@ class Tetris {
             alert('Game over! Your score is ' + this.score.score);
           }
         }
-        this.ele = this.preview.nextElement();
       }
-      this.ele.calculateTipOffset();
     }
+    this.ele.calculateTipOffset();
+    //draw background
     for(let i=0; i<this.squares.length; i++) {
       for(let j=0; j<this.squares[i].length; j++) {
         if(this.squares[i][j] > 0) {
@@ -315,7 +336,7 @@ class Tetris {
     this.preview = new Preview(this.squares);
     this.ele = this.preview.nextElement();
     this.counter = 0;
-    this.status = 1; // 0:暂停; 1:运行中
+    this.status = 1; // 0:暂停; 1:运行中；2:删除中
     this.speed = 50;
     this.score = new Score();
   }

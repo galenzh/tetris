@@ -42,3 +42,12 @@
 .square.tip {
   background-color: lightgray;
 }
+@keyframes blinking {
+  to {
+    opacity: 0;
+  }
+}
+.blink {
+  animation: blinking .2s linear infinite;
+  background: lightblue;
+}
