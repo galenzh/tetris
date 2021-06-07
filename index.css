@@ -8,7 +8,6 @@ body {
   user-select: none;
 }
 .content {
-  cursor: pointer;
   width: 750px;
   margin: 0 auto;
   height: 100vh;
@@ -76,11 +75,9 @@ body {
   justify-content: space-between;
   align-content: space-between;
   margin-left: 20px;
-  border: 3px solid #7687A9;
 }
 .info-card .info-detail {
-  margin-left: 20px;
-  margin-top: 50px;
+  margin-top: 10px;
 }
 .score-info {
   margin-bottom: 10px;
@@ -145,4 +142,10 @@ body {
 .blink {
   animation: blinking .2s linear infinite;
   background: lightblue;
+}
+.label {
+  margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #7687A9;
 }
