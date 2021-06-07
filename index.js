@@ -1,6 +1,6 @@
-// 
 let COL = 10,
-    ROW = 20;
+    ROW = 20,
+    COLORS = ['', 'Aquamarine', 'DarkTurquoise', 'DarkCyan', 'CornflowerBlue', 'LightSalmon', 'LightGreen', 'MediumPurple'];
 
 function init() {
   let screen = document.getElementById('screen');
@@ -142,47 +142,48 @@ class Element {
 class ElementFactory {
   getRandomElement(squares,eleNum) {
     let num = typeof eleNum !== 'undefined' ? eleNum : Util.getRandomNumber(0, 7);
-    if(num === 0) {
+    num += 1;
+    if(num === 1) {
       return new Element([ // I
-        [0, 1, 0, 0],
-        [0, 1, 0, 0],
-        [0, 1, 0, 0],
-        [0, 1, 0, 0]
-      ], squares);
-    } else if(num === 1) {
-      return new Element([ // L
-        [0, 1, 0],
-        [0, 1, 0],
-        [0, 1, 1]
+        [0, num, 0, 0],
+        [0, num, 0, 0],
+        [0, num, 0, 0],
+        [0, num, 0, 0]
       ], squares);
     } else if(num === 2) {
-      return new Element([ // J
-        [0, 1, 0],
-        [0, 1, 0],
-        [1, 1, 0]
+      return new Element([ // L
+        [0, num, 0],
+        [0, num, 0],
+        [0, num, num]
       ], squares);
     } else if(num === 3) {
-      return new Element([ // N
-        [0, 1, 0],
-        [0, 1, 1],
-        [0, 0, 1]
+      return new Element([ // J
+        [0, num, 0],
+        [0, num, 0],
+        [num, num, 0]
       ], squares);
     } else if(num === 4) {
-      return new Element([ // Z
-        [0, 1, 0],
-        [1, 1, 0],
-        [1, 0, 0]
+      return new Element([ // N
+        [0, num, 0],
+        [0, num, num],
+        [0, 0, num]
       ], squares);
     } else if(num === 5) {
-      return new Element([ // T
-        [0, 1, 0],
-        [0, 1, 1],
-        [0, 1, 0]
+      return new Element([ // Z
+        [0, num, 0],
+        [num, num, 0],
+        [num, 0, 0]
       ], squares);
     } else if(num === 6) {
+      return new Element([ // T
+        [0, num, 0],
+        [0, num, num],
+        [0, num, 0]
+      ], squares);
+    } else if(num === 7) {
       return new Element([ // O
-        [1, 1],
-        [1, 1]
+        [num, num],
+        [num, num]
       ], squares);
     }
   }
@@ -198,13 +199,16 @@ class Preview {
   nextElement() {
     this.current = this.next;
     this.next = this.eleFactory.getRandomElement(this.squares);
-    this.doms.forEach(function(dom) {
+    this.doms.forEach((dom) => {
       dom.className = 'square';
+      dom.style.backgroundColor = '';
     })
     for(let i=0; i<this.next.matrix.length; i++) {
       for(let j=0; j<this.next.matrix.length; j++) {
         if(this.next.matrix[i][j] > 0) {
-          this.doms[i*4 + j].className = 'square active';
+          this.doms[i*4 + j].className = 'square';
+          this.doms[i*4 + j].style.backgroundColor = COLORS[this.next.matrix[i][j]];
+          console.log(this.doms[i*4 + j].style.backgroundColor)
         }
       }
     }
@@ -279,14 +283,15 @@ class Tetris {
               this.score.add(1);
             }
             this.status = 1;
-          }, 1000);
+          }, 700);
           return;
         }
         //判断是否到顶
         for(let i=0; i<this.squares[0].length; i++) {
           if(this.squares[0][i] > 0) {
             this.status = 0;
-            alert('Game over! Your score is ' + this.score.score);
+            // alert('Game over! Your score is ' + this.score.score);
+            document.getElementsByClassName("game-over-info")[0].className += ' active';
           }
         }
       }
@@ -296,9 +301,11 @@ class Tetris {
     for(let i=0; i<this.squares.length; i++) {
       for(let j=0; j<this.squares[i].length; j++) {
         if(this.squares[i][j] > 0) {
-          this.doms[i * COL + j].className = 'square active';
+          this.doms[i * COL + j].className = 'square';
+          this.doms[i * COL + j].style.backgroundColor = COLORS[this.squares[i][j]];
         } else {
           this.doms[i * COL + j].className = 'square';
+          this.doms[i * COL + j].style.backgroundColor = '';
         }
       }
     }
@@ -317,7 +324,8 @@ class Tetris {
           continue;
         }
         if(this.ele.matrix[i][j] > 0) {
-          this.doms[(this.ele.position.x + i) * COL + this.ele.position.y + j].className = 'square active';
+          this.doms[(this.ele.position.x + i) * COL + this.ele.position.y + j].style.backgroundColor = COLORS[this.ele.matrix[i][j]];
+          this.doms[(this.ele.position.x + i) * COL + this.ele.position.y + j].classList.remove('tip');
         }
       }
     }
@@ -337,7 +345,7 @@ class Tetris {
     this.ele = this.preview.nextElement();
     this.counter = 0;
     this.status = 1; // 0:暂停; 1:运行中；2:删除中
-    this.speed = 50;
+    this.speed = 40;
     this.score = new Score();
   }
 }
@@ -346,18 +354,33 @@ let tetris = new Tetris();
 tetris.init();
 
 window.addEventListener('keydown', function(event) {
-  if(event.key === 'a') {
+  if(event.key === 'ArrowLeft') {
     tetris.ele.moveLeft();
-  } else if(event.key === 'd') {
+  } else if(event.key === 'ArrowRight') {
     tetris.ele.moveRight();
-  } else if(event.key === 's') {
-    tetris.ele.moveDown();
-  } else if(event.key === 'w') {
-    tetris.ele.rotate();
-  } else if(event.key === 'q') {
+  } else if(event.key === 'ArrowDown') {
     tetris.ele.quickDown();
+  } else if(event.key === 'ArrowUp') {
+    tetris.ele.rotate();
   }
+});
+document.getElementById('restart-info').addEventListener('click', function() {
+  tetris.restart();
+  document.getElementsByClassName("game-over-info")[0].className = 'game-over-info';
 });
 document.getElementById('restart').addEventListener('click', function() {
   tetris.restart();
+  document.getElementsByClassName("game-over-info")[0].className = 'game-over-info';
+});
+document.getElementById('right-allow').addEventListener('click', function() {
+  tetris.ele.moveRight();
+});
+document.getElementById('left-allow').addEventListener('click', function() {
+  tetris.ele.moveLeft();
+});
+document.getElementById('down-allow').addEventListener('click', function() {
+  tetris.ele.quickDown();
+});
+document.getElementById('up-allow').addEventListener('click', function() {
+  tetris.ele.rotate();
 });

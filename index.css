@@ -3,20 +3,66 @@
   margin: 0;
   box-sizing: border-box;
 }
+body {
+  background-color: #DDEEFF;
+  user-select: none;
+}
 .content {
+  cursor: pointer;
   width: 750px;
   margin: 0 auto;
   height: 100vh;
   background-color: azure;
+  padding: 50px 150px;
 }
 .screen {
   width: 245px;
+  border: 6px solid #7687A9;
   height: 495px;
   display: grid;
   grid-template-columns: auto auto auto auto auto auto auto auto auto auto;
   justify-content: space-between;
   align-content: space-between;
+  grid-row-gap: 1px;
+  grid-column-gap: 1px;
   float: left;
+}
+.game-content {
+  position: relative;
+}
+.game-content .game-over-info {
+  width: 245px;
+  height: 495px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(118, 135, 169, .85);
+  display: none;
+}
+.game-content .game-over-info.active {
+  display: block;
+}
+.game-over-info .game-over-title {
+  color: #fff;
+  font-size: 30px;
+  text-align: center;
+  margin-top: 150px;
+  font-weight: bolder;
+}
+.game-over-info .restart-info {
+  margin-top: 50px;
+  height: 100px;
+  background-color: #7687A9;
+  position: relative;
+}
+.game-over-info .restart-text {
+  color: #fff;
+  font-size: 23px;
+  font-weight: bolder;
+  position: absolute;
+  cursor: pointer;
+  bottom: 10px;
+  right: 10px;
 }
 .info-card {
   padding-left: 20px;
@@ -30,17 +76,66 @@
   justify-content: space-between;
   align-content: space-between;
   margin-left: 20px;
+  border: 3px solid #7687A9;
+}
+.info-card .info-detail {
+  margin-left: 20px;
+  margin-top: 50px;
+}
+.score-info {
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #7687A9;
+}
+.score-info #score {
+  color: #000;
+  margin-left: 10px;
+}
+#restart {
+  margin-bottom: 10px;
 }
 .square {
   width: 20px;
   height: 20px;
-  background-color: whitesmoke;
+  /* background-color: whitesmoke; */
 }
 .square.active {
   background-color: aqua;
 }
 .square.tip {
-  background-color: lightgray;
+  box-sizing: border-box;
+  border: 1px solid lightgray;
+}
+.allows {
+  margin-top: 30px;
+  margin-bottom: 50px;
+}
+.allows .center{
+  display: flex;
+}
+.allows .right{
+  margin-left: 40px;
+}
+.allows .up{
+  margin-left: 48px;
+  top: 15px;
+  position: relative;
+}
+.allows .down{
+  margin-left: 48px;
+  top: -15px;
+  position: relative;
+}
+#restart {
+  border: 2px solid #7687A9;
+  border-radius: 5px;
+  font-size: 20px;
+  width: 100px;
+  height: 50px;
+  color: #7687A9;
+  cursor: pointer;
+  user-select: none;
 }
 @keyframes blinking {
   to {
